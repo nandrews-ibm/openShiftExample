@@ -1,0 +1,123 @@
+global:
+  clusterId: <CLUSTER_ID>
+  ## @param global.imageRegistry The image registry used for all images in this chart and subcharts
+  imageRegistry: "icr.io"
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  ## @param global.federatedStorage.config The config for the federated storage
+  ## @param global.federatedStorage.existingSecret The name of an existing secret to use for the federated storage config. Note, you cannot set both `config` and `existingSecret`.
+  ## The name of the Secret containing a bucket config for federated storage.
+  ## The contents should be stored under a key named storage-config.yaml by default.
+  ## Ref: https://www.ibm.com/docs/en/kubecost/self-hosted/2.x?topic=cluster-long-term-federated-storage-configuration
+  federatedStorage:
+    config: ""
+    # A federated storage config can be provided via an existingSecret or via a string in helm values.
+    # If both are provided, the string in helm values take precedence.
+    # Example:
+    #   config: |-
+    #     type: S3
+    #     config:
+    #       bucket: ibm-kubecost-unified-agent-demo-data
+    #       endpoint: s3.amazonaws.com
+    #       region: us-west-2
+    #       access_key: xxx
+    #       secret_key: xxx
+    existingSecret: ""
+    # If you want to use a different file name for the federated storage config, you can set the fileName value.
+    fileName: federated-store.yaml  # set this value to change what the file name for the yaml config is
+  ## @param global.acknowledged Acknowledgment flag for Kubecost 3.0 major upgrade
+  ## REQUIRED FOR ENTERPRISE: Kubecost 3.0 introduces breaking changes and potential data disruption
+  ## risks. Review release notes and migration guide before proceeding.
+  ## Ref: https://github.com/kubecost/kubecost/releases
+  ##
+  acknowledged: true
+  compatibility:
+    ## Compatibility adaptations for Openshift
+    ##
+    openshift:
+      ## @param global.compatibility.openshift.adaptSecurityContext Adapt the securityContext sections of the deployment to make them compatible with Openshift restricted-v2 SCC: remove runAsUser, runAsGroup and fsGroup and let the platform use their allowed default IDs. Possible values: auto (apply if the detected running cluster is Openshift), force (perform the adaptation always), disabled (do not perform adaptation)
+      ##
+      adaptSecurityContext: auto
+  platforms:
+    ## Deploying to OpenShift (OCP) requires enabling this option.
+    openshift:
+      enabled: true  # Deploy Kubecost to OpenShift.
+      ## Create Security Context Constraint resources for the DaemonSets requiring additional privileges.
+      scc:
+        networkCosts: false  # Creates an SCC for Kubecost network-costs. This requires network-costs be enabled.
+        clusterController: false  # Creates an SCC for Kubecost Cluster Controller. This requires clusterController be enabled.
+      ## When OpenShift is enabled, the following securityContext will be applied to all resources unless they define their own.
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+    ## Set options for deploying with CI/CD tools like Argo CD.
+    cicd:
+      enabled: false  # Set to true when using affected CI/CD tools for access to the below configuration options.
+      skipSanityChecks: false  # If true, skip all sanity/existence checks for resources like Secrets.
+
+serviceAccount:
+  name: kubecost-finops-agent
+  annotations: {}
+  
+finops-agent:
+  enabled: true
+  ## IBM FinOps Agent Core image
+  ## @param image.registry [default: icr.io] IBM FinOps Agent image registry
+  ## @param image.repository [default: ibm-finops/agent] IBM FinOps Agent image repository
+  ## @skip image.tag IBM FinOps Agent image tag (immutable tags are recommended)
+  ## @param image.digest IBM FinOps Agent image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param image.pullPolicy IBM FinOps Agent image pull policy
+  ## @param image.pullSecrets Specify docker-registry secret names as an array
+  ## @param image.debug Specify if debug logs should be enabled
+  ##
+  image:
+    registry: icr.io
+    repository: ibm-finops/agent
+    # tag: v1.0.1 # Set in chart values by default
+    digest: ""
+    pullPolicy: IfNotPresent
+  ## @param fullImageName If set, this will override the image name and tag.
+  fullImageName: ""
+
+clusterController:
+  enabled: false
+  ## Override the image name and version for the cluster controller.
+  ## If not set, the image will be pulled from the registry and repository specified in the image block.
+  ## If set, the fullImageName will be used to pull the image.
+  ## Example:
+  ## fullImageName: icr.io/kubecost1/cluster-controller:v0.16.20
+  fullImageName: ""
+  image:
+    registry: ""  # Default is "icr.io"
+    repository: kubecost/cluster-controller
+    # tag: v0.16.28 # Set in chart values by default
+  imagePullPolicy: IfNotPresent
+
+networkCosts:
+  enabled: false
+  ## Override the image name and version for the network costs.
+  ## If not set, the image will be pulled from the registry and repository specified in the image block.
+  ## If set, the fullImageName will be used to pull the image.
+  ## Example:
+  ## fullImageName: icr.io/kubecost1/kubecost-network-costs:v0.17.11
+  fullImageName: ""
+  image:
+    registry: ""  # Default is "icr.io"
+    repository: kubecost/network-costs
+    # tag: v0.17.11 # Set in chart values by default
+  imagePullPolicy: IfNotPresent
+
+forecasting:
+  enabled: false
+aggregator:
+  enabled: false
+cloudCost:
+  enabled: false
+frontend:
+  enabled: false
+localStore:
+  enabled: false
