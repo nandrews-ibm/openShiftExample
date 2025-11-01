@@ -63,7 +63,7 @@ serviceAccount:
   name: kubecost-finops-agent
   annotations: {}
   
-finops-agent:
+finopsagent:
   enabled: true
   ## IBM FinOps Agent Core image
   ## @param image.registry [default: icr.io] IBM FinOps Agent image registry
