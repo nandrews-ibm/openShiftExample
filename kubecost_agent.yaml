@@ -84,11 +84,13 @@ finopsagent:
   fullImageName: ""
   resources:
     requests:
-      cpu: 1000m
-      memory: 1Gi
+      cpu: 1.0
+      memory: 3072Mi
+      ephemeral-storage: 50mi
     limits:
-      cpu: 20000m
-      memory: 3Gi
+      cpu: 3
+      memory: 6144Mi
+      ephemeral-storage: 100Gi
 
 clusterController:
   enabled: false
