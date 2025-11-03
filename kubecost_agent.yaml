@@ -82,6 +82,13 @@ finopsagent:
     pullPolicy: IfNotPresent
   ## @param fullImageName If set, this will override the image name and tag.
   fullImageName: ""
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 1Gi
+    limits:
+      cpu: 20000m
+      memory: 3Gi
 
 clusterController:
   enabled: false
