@@ -25,7 +25,7 @@ global:
     #       region: us-west-2
     #       access_key: xxx
     #       secret_key: xxx
-    existingSecret: ""
+    existingSecret: "federated-store"
     # If you want to use a different file name for the federated storage config, you can set the fileName value.
     fileName: federated-store.yaml  # set this value to change what the file name for the yaml config is
   ## @param global.acknowledged Acknowledgment flag for Kubecost 3.0 major upgrade
